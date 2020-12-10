@@ -50,11 +50,10 @@ jobs:
 #        folder: /apis/poi
 #        dockerfile: ./web/dockerfile
         service_principal: GitHub-Actions-bsl
-        service_principal_password: OBYbxZEefK9B~RmdujPKX3-jz.xQv3KcLO
+        service_principal_password: ${{ secrets.service_principal_password }}
         tenant: ec18604c-74ea-44f5-bc46-e737b5284cfe
         registry: openhackwpn4z9r3acr.azurecr.io
         repository: devopsoh/api-poi
         image: poi
         folder: /apis/poi
         dockerfile: ./web/dockerfile
-
