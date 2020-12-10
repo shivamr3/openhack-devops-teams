@@ -1,0 +1,59 @@
+name: user-java CI
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'apis/user-java/**'
+
+jobs:
+  build-and-deploy:
+   defaults:
+    run:
+     shell: bash
+     working-directory: ./apis/user-java
+    
+   runs-on: ubuntu-latest
+  
+   steps:
+   - name: Check out
+     uses: actions/checkout@v2
+
+   - name: Build Info
+     run: echo $GITHUB_RUN_NUMBER
+   
+   - name: 'Build and push image'
+     uses: azure/docker-login@v1
+     with:
+      login-server: openhackwpn4z9r3acr.azurecr.io
+      username: openhackwpn4z9r3acr
+      password: ucnxBfwSNPHKcjyXKEZ/gQ9gETy3d2xJ
+   - run: | 
+      docker build . -t openhackwpn4z9r3acr.azurecr.io/2/api-userjava:$GITHUB_RUN_NUMBER
+      docker push openhackwpn4z9r3acr.azurecr.io/2/api-userjava:$GITHUB_RUN_NUMBER
+   
+   - name: 'Login via Azure CLI'
+     uses: azure/login@v1
+     with:
+       creds: ${{ secrets.AZURE_CREDENTIALS }}
+   
+   - name: 'WebApp Deployment'
+     uses: azure/CLI@v1
+     with:
+       inlineScript: |  
+        az webapp config container set --name openhackwpn4z9r3userjava --resource-group openhackwpn4z9r3rg --docker-custom-image-name "openhackwpn4z9r3acr.azurecr.io/2/api-userjava:$GITHUB_RUN_NUMBER" --docker-registry-server-url openhackwpn4z9r3acr.azurecr.io --docker-registry-server-user openhackwpn4z9r3acr --docker-registry-server-password ucnxBfwSNPHKcjyXKEZ/gQ9gETy3d2xJ --slot staging
+   - name: Wait for 10 secs
+     uses: jakejarvis/wait-action@v0.1.0
+     with:
+      time: '10s'
+      
+   - name: check status code
+     uses: wei/curl@v1
+     with:
+       args: 'https://openhackwpn4z9r3userjava-staging.azurewebsites.net/api/healthcheck/user-java' 
+    
+   - name: swap slots
+     uses: azure/CLI@v1
+     with:
+        inlineScript: |
+           az webapp deployment slot swap --name openhackwpn4z9r3userjava --resource-group openhackwpn4z9r3rg --subscription aa0c7c99-583e-4785-8abb-a69b46abe4ca --slot staging --target-slot production
