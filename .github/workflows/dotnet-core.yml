@@ -56,4 +56,4 @@ jobs:
         repository: devopsoh/api-poi
         image: poi
         folder: /apis/poi
-        dockerfile: /apis/poi/web/dockerfile
+        dockerfile: ./apis/poi/web/dockerfile
