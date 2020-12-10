@@ -18,7 +18,8 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    env: 
+      IMAGE_NAME: githubactions
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
@@ -31,4 +32,6 @@ jobs:
       run: dotnet build ./apis/poi/web/poi.csproj --configuration Release --no-restore
     - name: Test dotnet code projects
       run: dotnet test ./apis/poi/tests/UnitTests/*.csproj --configuration Release
+    - name: Build poi image
+      run: docker build ./apis/poi/ --file /apis/poi/web/Dockerfile --tag $IMAGE_NAME
 
