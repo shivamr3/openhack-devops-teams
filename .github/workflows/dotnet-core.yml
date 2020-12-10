@@ -54,3 +54,19 @@ jobs:
         image: poi
         folder: ./apis/poi
         dockerfile: ./web/Dockerfile
+        
+  create_issue:
+      needs: build
+      if: failure()
+      runs-on: ubuntu-latest
+      steps: 
+      - name: Create issue using REST API
+        run: |
+          curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/issues \
+          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          --header 'content-type: application/json' \
+          --data '{
+            "title": "Automated issue for commit: ${{ github.sha }}",
+            "body": "This issue was automatically created by the GitHub Action workflow **${{ github.workflow }}**. \n\n The commit hash was: _${{ github.sha }}_."
+            }'
