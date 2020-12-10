@@ -36,9 +36,9 @@ namespace poi
                     options.SerializerSettings.Formatting = Formatting.Indented;
                 });
 
-            var connectionString = poi.Utility.POIConfiguration.GetConnectionString(this.Configuration);
-            services.AddDbContext<POIContext>(options =>
-                options.UseSqlServer(connectionString));
+            //var connectionString = poi.Utility.POIConfiguration.GetConnectionString(this.Configuration);
+            //services.AddDbContext<POIContext>(options =>
+             //   options.UseSqlServer(connectionString));
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
