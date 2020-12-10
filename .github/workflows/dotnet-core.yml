@@ -21,6 +21,6 @@ jobs:
       run: dotnet restore ./apis/poi/web/poi.csproj
     - name: Build
       run: dotnet build ./apis/poi/web/poi.csproj --configuration Release --no-restore
-#    - name: Test dotnet code projects
-#      run: dotnet test MyProject/MyProject.Tests/MyProject.Tests.csproj --configuration ${{ env.buildConfiguration }}
-#
+    - name: Test dotnet code projects
+      run: dotnet test ./apis/poi/tests/UnitTests/*.csproj --configuration Release
+
