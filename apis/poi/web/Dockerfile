@@ -3,7 +3,7 @@ WORKDIR /app
 
 # copy csproj and restore as distinct layers
 COPY *.csproj ./
-COPY ./tests/IntegrationTests/*.csproj ./tests/IntegrationTests/
+COPY /tests/IntegrationTests/*.csproj ./tests/IntegrationTests/
 COPY ./tests/UnitTests/*.csproj ./tests/UnitTests/
 RUN dotnet restore
 
