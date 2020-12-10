@@ -47,15 +47,15 @@ jobs:
      with:
        inlineScript: |  
         az webapp config container set --name openhackwpn4z9r3poi --resource-group openhackwpn4z9r3rg --docker-custom-image-name "openhackwpn4z9r3acr.azurecr.io/2/api-poi:$GITHUB_RUN_NUMBER" --docker-registry-server-url openhackwpn4z9r3acr.azurecr.io --docker-registry-server-user openhackwpn4z9r3acr --docker-registry-server-password ucnxBfwSNPHKcjyXKEZ/gQ9gETy3d2xJ --slot staging
-   - name: Wait for 2 minutes
+   - name: Wait for 10 seconds
      uses: jakejarvis/wait-action@v0.1.0
      with:
-      time: '60s'
+      time: '10s'
       
-   - name: check status code
-     uses: wei/curl@v1
-     with:
-       args: 'https://openhackwpn4z9r3poi-staging.azurewebsites.net/api/healthcheck/poi' 
+#   - name: check status code
+#     uses: wei/curl@v1
+#     with:
+#       args: 'https://openhackwpn4z9r3poi-staging.azurewebsites.net/api/healthcheck/poi' 
     
    - name: swap slots
      uses: azure/CLI@v1
