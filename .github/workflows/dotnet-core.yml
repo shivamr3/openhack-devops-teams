@@ -3,16 +3,12 @@ name: .NET Core CI CD
 on:
   push:
     branches: [ master ]
-    paths: 
-    - '/apis/poi/**' 
     paths-ignore: 
     - '/apis/trips/**'
     - '/apis/user-java**'
     - 'apis/userprofile/**'
   pull_request:
     branches: [ master ]
-    paths: 
-    - '/apis/poi/**' 
     paths-ignore: 
     - '/apis/trips/**'
     - '/apis/user-java**'
