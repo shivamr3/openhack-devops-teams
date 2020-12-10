@@ -32,6 +32,21 @@ jobs:
 #      run: dotnet build ./apis/poi/web/poi.csproj --configuration Release --no-restore
 #    - name: Test dotnet code projects
 #      run: dotnet test ./apis/poi/tests/UnitTests/*.csproj --configuration Release
-    - name: Build poi image
-      run: docker build ./apis/poi/ --file ./apis/poi/web/Dockerfile --tag $IMAGE_NAME
+#    - name: Build poi image
+#      run: docker build ./apis/poi/ --file ./apis/poi/web/Dockerfile --tag $IMAGE_NAME
+  acr_build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: ACR build
+      id: acr
+      uses: Azure/acr-build@main
+      with:
+        service_principal: ${{ secrets.service_principal }}
+        service_principal_password: ${{ secrets.service_principal_password }}
+        tenant: ${{ secrets.tenant }}
+        registry: ${{ secrets.registry }}
+        repository: ${{ secrets.repository }}
+        image: poi
+        folder: /apis/poi
+        dockerfile: ./web/dockerfile
 
