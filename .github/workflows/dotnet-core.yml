@@ -26,12 +26,12 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 2.1
-    - name: Install dependencies
-      run: dotnet restore ./apis/poi/web/poi.csproj
-    - name: Build
-      run: dotnet build ./apis/poi/web/poi.csproj --configuration Release --no-restore
-    - name: Test dotnet code projects
-      run: dotnet test ./apis/poi/tests/UnitTests/*.csproj --configuration Release
+#    - name: Install dependencies
+#      run: dotnet restore ./apis/poi/web/poi.csproj
+#    - name: Build
+#      run: dotnet build ./apis/poi/web/poi.csproj --configuration Release --no-restore
+#    - name: Test dotnet code projects
+#      run: dotnet test ./apis/poi/tests/UnitTests/*.csproj --configuration Release
     - name: Build poi image
-      run: docker build ./apis/poi/ --file /apis/poi/web/Dockerfile --tag $IMAGE_NAME
+      run: docker build ./apis/poi/ --file ./apis/poi/web/Dockerfile --tag $IMAGE_NAME
 
