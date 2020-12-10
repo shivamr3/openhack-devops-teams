@@ -38,7 +38,7 @@ jobs:
       id: acr
       uses: Azure/acr-build@main
       with:
-#        service_principal: ${{ secrets.service_principal }}
+        service_principal: ${{ secrets.service_principal }}
         service_principal_password: ${{ secrets.service_principal_password }}
         tenant: ${{ secrets.tenant }}
         registry: ${{ secrets.registry }}
@@ -70,3 +70,21 @@ jobs:
             "title": "Automated issue for commit: ${{ github.sha }}",
             "body": "This issue was automatically created by the GitHub Action workflow **${{ github.workflow }}**. \n\n The commit hash was: _${{ github.sha }}_."
             }'
+  
+  Deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: 'Login via Azure CLI'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - uses: azure/docker-login@v1
+      with:
+        login-server: openhackwpn4z9r3acr.azurecr.io
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+    - uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'openhackwpn4z9r3poi'
+        images: 'contoso.azurecr.io/devopsoh/api-poi/poi:latest'
