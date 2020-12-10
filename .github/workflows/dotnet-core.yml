@@ -52,5 +52,4 @@ jobs:
         registry: openhackwpn4z9r3acr.azurecr.io
         repository: devopsoh/api-poi
         image: poi
-        folder: /apis/poi
-        dockerfile: ../../apis/poi/web/Dockerfile
+        dockerfile: ./apis/poi/web/Dockerfile
