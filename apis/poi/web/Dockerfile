@@ -2,16 +2,16 @@ FROM microsoft/dotnet:2.1-sdk AS build-env
 WORKDIR /app
 
 # copy csproj and restore as distinct layers
-COPY *.csproj ./
-COPY ../tests/IntegrationTests/*.csproj ./tests/IntegrationTests/
-COPY ../tests/UnitTests/*.csproj ./tests/UnitTests/
+COPY web/*.csproj ./
+COPY tests/IntegrationTests/*.csproj ./tests/IntegrationTests/
+COPY tests/UnitTests/*.csproj ./tests/UnitTests/
 RUN dotnet restore
 
 # copy everything else and build
 COPY . ./
 RUN dotnet publish -c Release -o out
-COPY ./appsettings.*.json /app/out/
-COPY ./appsettings.json /app/out/
+COPY web/appsettings.*.json /app/out/
+COPY web/appsettings.json /app/out/
 
 FROM build-env AS unit-test
 WORKDIR /app/tests/UnitTests
