@@ -67,7 +67,7 @@ namespace poi
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/docs/poi/swagger.json", "Points Of Interest(POI) API V1");
+                c.SwaggerEndpoint("/swagger/docs/poi/swagger.json", "Points Of Interest(POI) API V2");
                 c.DocumentTitle = "POI Swagger UI";
                 c.RoutePrefix = "api/docs/poi";
             });
