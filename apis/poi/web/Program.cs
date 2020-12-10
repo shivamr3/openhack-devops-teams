@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,7 +14,7 @@ namespace poi
     {
         public static void Main(string[] args)
         {
-            return;
+
             BuildWebHost(args).Run();
 
         }
