@@ -1,90 +1,62 @@
-name: .NET Core CI CD
+name: Docker Buildpoi Image CI
 
 on:
   push:
     branches: [ master ]
-    paths-ignore: 
-    - '/apis/trips/**'
-    - '/apis/user-java**'
-    - 'apis/userprofile/**'
-  pull_request:
-    branches: [ master ]
-    paths-ignore: 
-    - '/apis/trips/**'
-    - '/apis/user-java**'
-    - 'apis/userprofile/**'
+    paths:
+      - 'apis/poi/**'
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-    env: 
-      IMAGE_NAME: githubactions
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 2.1
-#    - name: Install dependencies
-#      run: dotnet restore ./apis/poi/web/poi.csproj
-#    - name: Build
-#      run: dotnet build ./apis/poi/web/poi.csproj --configuration Release --no-restore
-#    - name: Test dotnet code projects
-#      run: dotnet test ./apis/poi/tests/UnitTests/*.csproj --configuration Release
-#    - name: Build poi image
-#      run: docker build ./apis/poi/ --file ./apis/poi/web/Dockerfile --tag $IMAGE_NAME
-    - name: ACR build
-      id: acr
-      uses: Azure/acr-build@main
-      with:
-        service_principal: ${{ secrets.service_principal }}
-        service_principal_password: ${{ secrets.service_principal_password }}
-        tenant: ${{ secrets.tenant }}
-        registry: ${{ secrets.registry }}
-        repository: ${{ secrets.repository }}
-        image: poi
-        folder: ./apis/poi
-        dockerfile: ./web/Dockerfile
-#        service_principal: http://GitHub-Actions-bsl
-#        service_principal_password: ${{ secrets.service_principal_password }}
-#        tenant: ec18604c-74ea-44f5-bc46-e737b5284cfe
-#        registry: openhackwpn4z9r3acr.azurecr.io
-#        repository: devopsoh/api-poi
-#        image: poi
-#        folder: ./apis/poi
-#        dockerfile: ./web/Dockerfile
-        
-  create_issue:
-      needs: build
-      if: failure()
-      runs-on: ubuntu-latest
-      steps: 
-      - name: Create issue using REST API
-        run: |
-          curl --request POST \
-          --url https://api.github.com/repos/${{ github.repository }}/issues \
-          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-          --header 'content-type: application/json' \
-          --data '{
-            "title": "Automated issue for commit: ${{ github.sha }}",
-            "body": "This issue was automatically created by the GitHub Action workflow **${{ github.workflow }}**. \n\n The commit hash was: _${{ github.sha }}_."
-            }'
+  build-and-deploy:
+   defaults:
+    run:
+     shell: bash
+     working-directory: ./apis/poi/web
+    
+   runs-on: ubuntu-latest
   
-  Deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-    - name: 'Login via Azure CLI'
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-    - uses: azure/docker-login@v1
-      with:
-        login-server: openhackwpn4z9r3acr.azurecr.io
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
-    - uses: azure/webapps-deploy@v2
-      with:
-        app-name: 'openhackwpn4z9r3poi'
-        images: 'openhackwpn4z9r3acr.azurecr.io/devopsoh/api-poi:changeme'
+   steps:
+   - name: Check out
+     uses: actions/checkout@v2
+
+   - name: Build Info
+     run: echo $GITHUB_RUN_NUMBER
+   
+   - name: 'Build and push image'
+     uses: azure/docker-login@v1
+     with:
+  #    login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+  #    username: ${{ secrets.REGISTRY_USERNAME }}
+  #    password: ${{ secrets.REGISTRY_PASSWORD }}
+      login-server: openhackwpn4z9r3acr.azurecr.io
+      username: openhackwpn4z9r3acr
+      password: ucnxBfwSNPHKcjyXKEZ/gQ9gETy3d2xJ
+   - run: | 
+      docker build . -t openhackwpn4z9r3acr.azurecr.io/2/api-poi:$GITHUB_RUN_NUMBER
+      docker push openhackwpn4z9r3acr.azurecr.io/2/api-poi:$GITHUB_RUN_NUMBER
+   
+   - name: 'Login via Azure CLI'
+     uses: azure/login@v1
+     with:
+       creds: ${{ secrets.AZURE_CREDENTIALS }}
+   
+   - name: 'WebApp Deployment'
+     uses: azure/CLI@v1
+     with:
+       inlineScript: |  
+        az webapp config container set --name openhackwpn4z9r3poi --resource-group openhackwpn4z9r3rg --docker-custom-image-name "openhackwpn4z9r3acr.azurecr.io/2/api-poi:$GITHUB_RUN_NUMBER" --docker-registry-server-url openhackwpn4z9r3acr.azurecr.io --docker-registry-server-user openhackwpn4z9r3acr --docker-registry-server-password ucnxBfwSNPHKcjyXKEZ/gQ9gETy3d2xJ --slot staging
+   - name: Wait for 2 minutes
+     uses: jakejarvis/wait-action@v0.1.0
+     with:
+      time: '60s'
+      
+   - name: check status code
+     uses: wei/curl@v1
+     with:
+       args: 'https://openhackwpn4z9r3poi-staging.azurewebsites.net/api/healthcheck/poi' 
+    
+   - name: swap slots
+     uses: azure/CLI@v1
+     with:
+        inlineScript: |
+           az webapp deployment slot swap --name openhackwpn4z9r3poi --resource-group openhackwpn4z9r3rg --subscription aa0c7c99-583e-4785-8abb-a69b46abe4ca --slot staging --target-slot production
