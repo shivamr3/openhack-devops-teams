@@ -3,10 +3,8 @@ name: Docker Buildpoi Image CI
 on:
   push:
     branches: [ master ]
-    paths-ignore: 
-    - '/apis/trips/**'
-    - '/apis/user-java**'
-    - 'apis/userprofile/**'
+    paths: 
+    - '/apis/poi/**'
 
 jobs:
   build-and-deploy:
@@ -52,13 +50,13 @@ jobs:
      with:
       time: '1s'
       
-#   - name: check status code
-#     uses: wei/curl@v1
-#     with:
-#       args: 'https://openhackwpn4z9r3poi-staging.azurewebsites.net/api/healthcheck/poi' 
+   - name: check status code
+     uses: wei/curl@v1
+     with:
+       args: 'https://openhackwpn4z9r3poi-staging.azurewebsites.net/api/healthcheck/poi' 
     
-  # - name: swap slots
-  #   uses: azure/CLI@v1
-  #   with:
-  #      inlineScript: |
-  #         az webapp deployment slot swap --name openhackwpn4z9r3poi --resource-group openhackwpn4z9r3rg --subscription aa0c7c99-583e-4785-8abb-a69b46abe4ca --slot staging --target-slot production
+   - name: swap slots
+     uses: azure/CLI@v1
+     with:
+        inlineScript: |
+           az webapp deployment slot swap --name openhackwpn4z9r3poi --resource-group openhackwpn4z9r3rg --subscription aa0c7c99-583e-4785-8abb-a69b46abe4ca --slot staging --target-slot production
