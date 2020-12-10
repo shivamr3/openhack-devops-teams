@@ -33,5 +33,5 @@ jobs:
 #    - name: Test dotnet code projects
 #      run: dotnet test ./apis/poi/tests/UnitTests/*.csproj --configuration Release
     - name: Build poi image
-      run: docker build ./apis/poi/ --file ./apis/poi/web/Dockerfile --tag $IMAGE_NAME
+      run: docker build ./apis/poi/web/ --file ./apis/poi/web/Dockerfile --tag $IMAGE_NAME
 
