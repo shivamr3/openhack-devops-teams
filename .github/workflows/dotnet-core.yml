@@ -39,21 +39,21 @@ jobs:
       uses: Azure/acr-build@main
       with:
 #        service_principal: ${{ secrets.service_principal }}
-#        service_principal_password: ${{ secrets.service_principal_password }}
-#        tenant: ${{ secrets.tenant }}
-#        registry: ${{ secrets.registry }}
-#        repository: ${{ secrets.repository }}
-#        image: poi
-#        folder: /apis/poi
-#        dockerfile: ./web/dockerfile
-        service_principal: http://GitHub-Actions-bsl
         service_principal_password: ${{ secrets.service_principal_password }}
-        tenant: ec18604c-74ea-44f5-bc46-e737b5284cfe
-        registry: openhackwpn4z9r3acr.azurecr.io
-        repository: devopsoh/api-poi
+        tenant: ${{ secrets.tenant }}
+        registry: ${{ secrets.registry }}
+        repository: ${{ secrets.repository }}
         image: poi
         folder: ./apis/poi
         dockerfile: ./web/Dockerfile
+#        service_principal: http://GitHub-Actions-bsl
+#        service_principal_password: ${{ secrets.service_principal_password }}
+#        tenant: ec18604c-74ea-44f5-bc46-e737b5284cfe
+#        registry: openhackwpn4z9r3acr.azurecr.io
+#        repository: devopsoh/api-poi
+#        image: poi
+#        folder: ./apis/poi
+#        dockerfile: ./web/Dockerfile
         
   create_issue:
       needs: build
