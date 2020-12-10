@@ -87,4 +87,4 @@ jobs:
     - uses: azure/webapps-deploy@v2
       with:
         app-name: 'openhackwpn4z9r3poi'
-        images: 'contoso.azurecr.io/devopsoh/api-poi/poi:latest'
+        images: 'openhackwpn4z9r3acr.azurecr.io/devopsoh/api-poi/poi:latest'
