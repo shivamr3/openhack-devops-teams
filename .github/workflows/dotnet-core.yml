@@ -32,10 +32,11 @@ jobs:
 
     #- name: Autobuild
     #  uses: github/codeql-action/autobuild@v1
+    - name: Install dotnet dependencies
+      run: dotnet restore apis/poi/poi.sln
 
-    - run: |
-       make bootstrap
-       make release
+    - name: Build dotnet
+      run: dotnet build apis/poi/poi.sln --no-restore
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
