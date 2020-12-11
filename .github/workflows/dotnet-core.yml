@@ -31,6 +31,7 @@ jobs:
      working-directory: ./apis/poi/web
     
    runs-on: ubuntu-latest
+   needs: [sonarcloud]
   
    steps:
    - name: Check out
