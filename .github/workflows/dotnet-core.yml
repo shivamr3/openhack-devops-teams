@@ -108,6 +108,7 @@ jobs:
     - name: Swap staging to production
       run: |
         az webapp traffic-routing set --distribution staging=1 --name openhackwpn4z9r3poi --resource-group openhackwpn4z9r3rg
+      continue-on-error: true
   
   validate_one_percent:
     runs-on: ubuntu-latest
@@ -134,7 +135,8 @@ jobs:
       - name: Swap staging to production
         run: |
           az webapp traffic-routing set --distribution staging=10 --name openhackwpn4z9r3poi --resource-group openhackwpn4z9r3rg
-  
+        continue-on-error: true
+        
   validate_ten_percent:
     runs-on: ubuntu-latest
     needs: route_traffic_ten_percent
@@ -160,6 +162,8 @@ jobs:
     - name: Swap staging to production
       run: |
         az webapp traffic-routing set --distribution staging=100 --name openhackwpn4z9r3poi --resource-group openhackwpn4z9r3rg
+      continue-on-error: true
+      
   validate_onhundred_percent:
     runs-on: ubuntu-latest
     needs: route_traffic_onehundred_percent
@@ -201,7 +205,7 @@ jobs:
     - name: Swap staging to production
       run: |
         az webapp traffic-routing set --distribution staging=0 --name openhackwpn4z9r3poi --resource-group openhackwpn4z9r3rg    
-           
+      continue-on-error: true
   create_issue:
     needs: build-and-deploy
     if: failure()
