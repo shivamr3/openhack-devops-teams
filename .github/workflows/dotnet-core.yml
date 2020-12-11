@@ -61,3 +61,19 @@ jobs:
      with:
         inlineScript: |
            az webapp deployment slot swap --name openhackwpn4z9r3poi --resource-group openhackwpn4z9r3rg --subscription aa0c7c99-583e-4785-8abb-a69b46abe4ca --slot staging --target-slot production
+           
+  create_issue:
+    needs: build-and-deploy
+    if: failure()
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Create issue using REST API
+        run: |
+          curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/issues \
+          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          --header 'content-type: application/json' \
+          --data '{
+            "title": "Automated issue for commit: ${{ github.sha }}",
+            "body": "This issue was automatically created by the GitHub Action workflow **${{ github.workflow }}**. \n\n The commit hash was: _${{ github.sha }}_."
+            }'
