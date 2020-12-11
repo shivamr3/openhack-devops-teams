@@ -21,8 +21,8 @@ jobs:
         sonarProjectName:  openhack-devops-teams
         sonarOrganization: shivamr3
       env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        GITHUB_TOKEN: edc870e963b6333e823872879bfc264e3fe5fb03
+        SONAR_TOKEN: edc870e963b6333e823872879bfc264e3fe5fb03 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
   build-and-deploy:
    defaults:
