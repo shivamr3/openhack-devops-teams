@@ -90,11 +90,117 @@ jobs:
      with:
        args: 'https://openhackwpn4z9r3poi-staging.azurewebsites.net/api/healthcheck/poi' 
     
-   - name: swap slots
-     uses: azure/CLI@v1
-     with:
-        inlineScript: |
-           az webapp deployment slot swap --name openhackwpn4z9r3poi --resource-group openhackwpn4z9r3rg --subscription aa0c7c99-583e-4785-8abb-a69b46abe4ca --slot staging --target-slot production
+#   - name: swap slots
+#     uses: azure/CLI@v1
+#     with:
+#        inlineScript: |
+#           az webapp deployment slot swap --name openhackwpn4z9r3poi --resource-group openhackwpn4z9r3rg --subscription aa0c7c99-583e-4785-8abb-a69b46abe4ca --slot staging --target-slot production
+           
+  route_traffic_one_percent:
+    runs-on: ubuntu-latest
+    needs: build-and-deploy
+    steps:    
+    - name: Azure authentication
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS  }} 
+    
+    - name: Swap staging to production
+      run: |
+        az webapp traffic-routing set --distribution staging=1 --name openhackwpn4z9r3poi --resource-group openhackwpn4z9r3rg
+  
+  validate_one_percent:
+    runs-on: ubuntu-latest
+    needs: route_traffic_one_percent
+    steps:
+    - name: Install Apache Bench
+      run: sudo apt-get install  apache2-utils
+
+    - name: Load Test 
+      run: | 
+        failures=$(ab -t 10 -c 10 https://openhackwpn4z9r3poi.azurewebsites.net/api/version/poi | grep -Poe 'Failed requests: \K.*' | sed 's/^ *//g')
+        if [ "$failures" -gt "0" ];then
+          exit -1
+        fi
+  route_traffic_ten_percent:
+      runs-on: ubuntu-latest
+      needs: validate_one_percent
+      steps:
+      - name: Azure authentication
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS  }} 
+      
+      - name: Swap staging to production
+        run: |
+          az webapp traffic-routing set --distribution staging=10 --name openhackwpn4z9r3poi --resource-group openhackwpn4z9r3rg
+  
+  validate_ten_percent:
+    runs-on: ubuntu-latest
+    needs: route_traffic_ten_percent
+    steps:
+    - name: Install Apache Bench
+      run: sudo apt-get install  apache2-utils
+
+    - name: Load Test 
+      run: | 
+        failures=$(ab -t 10 -c 10 https://openhackwpn4z9r3poi.azurewebsites.net/api/version/poi | grep -Poe 'Failed requests: \K.*' | sed 's/^ *//g')
+        if [ "$failures" -gt "0" ];then
+          exit -1
+        fi  
+  route_traffic_onehundred_percent:
+    runs-on: ubuntu-latest
+    needs: validate_ten_percent
+    steps:
+    - name: Azure authentication
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS  }} 
+    
+    - name: Swap staging to production
+      run: |
+        az webapp traffic-routing set --distribution staging=100 --name openhackwpn4z9r3poi --resource-group openhackwpn4z9r3rg
+  validate_onhundred_percent:
+    runs-on: ubuntu-latest
+    needs: route_traffic_onehundred_percent
+    steps:
+    - name: Install Apache Bench
+      run: sudo apt-get install  apache2-utils
+
+    - name: Load Test 
+      run: | 
+        failures=$(ab -t 10 -c 10 https://openhackwpn4z9r3poi.azurewebsites.net/api/version/poi | grep -Poe 'Failed requests: \K.*' | sed 's/^ *//g')
+        if [ "$failures" -gt "0" ];then
+          exit -1
+        fi       
+  deploy_production:
+    runs-on: ubuntu-latest
+    needs: validate_onhundred_percent
+    steps:
+    - name: Azure authentication
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS  }}
+
+    - name: Azure WebApp
+      uses: Azure/webapps-deploy@v2
+      with:
+        app-name: openhackwpn4z9r3poi
+        slot-name: production
+        images: openhackwpn4z9r3acr.azurecr.io/2/api-poi:$GITHUB_RUN_NUMBER
+
+  route_all_traffic_production:
+    runs-on: ubuntu-latest
+    needs: deploy_production
+    steps:
+    - name: Azure authentication
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS  }} 
+    
+    - name: Swap staging to production
+      run: |
+        az webapp traffic-routing set --distribution staging=0 --name openhackwpn4z9r3poi --resource-group openhackwpn4z9r3rg    
            
   create_issue:
     needs: build-and-deploy
