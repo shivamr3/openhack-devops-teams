@@ -186,12 +186,17 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS  }}
 
-    - name: Azure WebApp
-      uses: Azure/webapps-deploy@v2
+#    - name: Azure WebApp
+#      uses: Azure/webapps-deploy@v2
+#      with:
+#        app-name: openhackwpn4z9r3poi
+#        slot-name: production
+#        images: openhackwpn4z9r3acr.azurecr.io/2/api-poi:$GITHUB_RUN_NUMBER
+    - name: swap slots
+      uses: azure/CLI@v1
       with:
-        app-name: openhackwpn4z9r3poi
-        slot-name: production
-        images: openhackwpn4z9r3acr.azurecr.io/2/api-poi:$GITHUB_RUN_NUMBER
+        inlineScript: |
+           az webapp deployment slot swap --name openhackwpn4z9r3poi --resource-group openhackwpn4z9r3rg --subscription aa0c7c99-583e-4785-8abb-a69b46abe4ca --slot staging --target-slot production
 
   route_all_traffic_production:
     runs-on: ubuntu-latest
