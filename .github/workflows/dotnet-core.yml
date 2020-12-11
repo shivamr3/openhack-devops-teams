@@ -4,10 +4,26 @@ on:
   push:
     branches: [ master ]
     
-    paths:  
-    - 'apis/poi/**'
+    paths-ignore:  
+    - 'apis/users-java/**'
 
 jobs:
+  sonarcloud:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+    - uses: actions/checkout@v2
+      
+    - name: SonarCloud Scan
+      uses: highbyte/sonarscan-dotnet@2.0
+      with:
+        sonarProjectKey: openhackkey
+        sonarProjectName:  openhack-devops-teams
+        sonarOrganization: shivamr3
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        GITHUB_TOKEN: edc870e963b6333e823872879bfc264e3fe5fb03
+  
   build-and-deploy:
    defaults:
     run:
@@ -21,7 +37,7 @@ jobs:
      uses: actions/checkout@v2
 
    - name: Build Info
-     run: echo $GITHUB_RUN_NUMBER
+     run: echo $GITHUB_RUN_NUMBER  
    
    - name: 'Build and push image'
      uses: azure/docker-login@v1
